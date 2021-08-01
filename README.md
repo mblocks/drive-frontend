@@ -1,5 +1,6 @@
 # Drive Frontend
 
+Mblocks Drive Frontend
 
 ## Features
 
@@ -29,7 +30,8 @@ $ yarn start
 Create `.umirc.local.ts` as below
 
 ```js
-
+//more detail
+//https://umijs.org/docs/config#local-configuration
 import { defineConfig } from 'umi';
 
 export default defineConfig({

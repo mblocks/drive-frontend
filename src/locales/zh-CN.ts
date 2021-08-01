@@ -1,0 +1,16 @@
+export default {
+  DRIVE_ROOT: '我的文档',
+  DRIVE_NEW: '添加',
+  DRIVE_UPLOAD_FILE: '上传文件',
+  DRIVE_CREATE_DIR: '创建目录',
+  DRIVE_UPLOAD_DIR: '上传目录',
+  DRIVE_ACTION_RENAME: '重命名',
+  DRIVE_ACTION_DOWNLOAD: '下载',
+  DRIVE_ACTION_MOVE: '移动',
+  DRIVE_ACTION_COPY: '复制',
+  DRIVE_ACTION_DELETE: '删除',
+  DRIVE_ACTION_DELETE_CONFIRM: '确定删除以下这些文档吗?',
+  DRIVE_ACTION_SELECTED: '已选择 {number} 项',
+  DRIVE_DOCUMENT_NAME: '名称',
+  DRIVE_DOCUMENT_MODIFY_TIME: '修改时间',
+};

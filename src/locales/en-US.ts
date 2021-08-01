@@ -1,0 +1,16 @@
+export default {
+  DRIVE_ROOT: 'My Documents',
+  DRIVE_NEW: 'New',
+  DRIVE_UPLOAD_FILE: 'Upload',
+  DRIVE_CREATE_DIR: 'Create Dir',
+  DRIVE_UPLOAD_DIR: 'Upload Dir',
+  DRIVE_ACTION_RENAME: 'Rename',
+  DRIVE_ACTION_DOWNLOAD: 'Download',
+  DRIVE_ACTION_MOVE: 'Move',
+  DRIVE_ACTION_COPY: 'Copy',
+  DRIVE_ACTION_DELETE: 'Delete',
+  DRIVE_ACTION_DELETE_CONFIRM: 'Do you want to delete these documents below?',
+  DRIVE_ACTION_SELECTED: 'Selected {number} items',
+  DRIVE_DOCUMENT_NAME: 'Name',
+  DRIVE_DOCUMENT_MODIFY_TIME: 'Modify Time',
+};
