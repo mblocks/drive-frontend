@@ -19,10 +19,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Update browserslist
-      run: npx browserslist@latest --update-db
     - name: Install
       run: yarn
+    - name: Update browserslist
+      run: npx browserslist@latest --update-db
     - name: Build
       run: UMI_ENV=production yarn build
     - name: Zip
