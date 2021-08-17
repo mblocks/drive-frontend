@@ -43,7 +43,12 @@ const Uploader = ({ children, ...rest }) => {
       });
     },
     customRequest: ({ file, onSuccess }) => {
-      fetch(queues[file.queue].presignedUrl, { method: 'PUT', body: file })
+      const formData = new FormData();
+      Object.entries(queues[file.queue].presignedUrl).forEach(([k, v]) => {
+        formData.append(k, k == 'key' ? v + file.name : v);
+      });
+      formData.append('file', file);
+      fetch('http://minio.local.com/hello', { method: 'post', body: formData })
         .then((response) => onSuccess(response, file))
         .catch((e) => {
           console.error(e);
