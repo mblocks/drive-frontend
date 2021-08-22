@@ -8,9 +8,9 @@ export default {
       'dirs|10': [
         {
           id: '@integer(1, 900000)',
-          title: '@name',
+          name: '@name',
           'type|1': ['dir', 'file'],
-          parent: req.query.dir,
+          parent: req.query.parent || 'root',
         },
       ],
     });
@@ -38,19 +38,30 @@ export default {
     res.send(data.documents);
   },
   'GET /api/driver/breadcrumb': (req: Request, res: Response) => {
-    if (!req.query.dir) {
+    if (!req.query.parent) {
       res.send([]);
     }
     res.send([
-      { id: 'manual-2', title: 'Hello' },
-      { id: 'manual-3', title: 'World' + req.query.dir },
+      { id: 'manual-2', name: 'Hello' },
+      { id: 'manual-3', name: 'World' + req.query.parent },
     ]);
   },
   'POST /api/driver/documents/move': (req: Request, res: Response) => {
     res.send({ ...req.body, id: new Date().getTime() + '' });
   },
   'POST /api/driver/documents/copy': (req: Request, res: Response) => {
-    res.send({ ...req.body, id: new Date().getTime() + '' });
+    const parent = req.body.target || 'root';
+    const data = mockjs.mock({
+      'dirs|10': [
+        {
+          id: '@integer(1, 900000)',
+          name: '@name',
+          'type|1': ['dir', 'file'],
+          parent,
+        },
+      ],
+    });
+    res.send(data.dirs);
   },
   'POST /api/driver/documents/delete': (req: Request, res: Response) => {
     res.send({ ...req.body, id: new Date().getTime() + '' });
@@ -70,13 +81,19 @@ export default {
     });
     res.send('some words');
   },
-  'GET /api/driver/presigned/:type': async (req: Request, res: Response) => {
-    const type = req.params.type;
-    setTimeout(() => {
-      res.send('/api/driver/mockuploadfile');
-    }, 600);
+  'GET /api/driver/presigned': async (req: Request, res: Response) => {
+    res.send({
+      'x-amz-algorithm': 'AWS4-HMAC-SHA256',
+      'x-amz-credential': 'hello/20210822/mblocks/s3/aws4_request',
+      'x-amz-date': '20210822T150433Z',
+      policy:
+        'eyJleHBpcmF0aW9uIjogIjIwMjEtMDktMDFUMTU6MDQ6MzMuMzQyWiIsICJjb25kaXRpb25zIjogW1siZXEiLCAiJGJ1Y2tldCIsICJoZWxsbyJdLCBbInN0YXJ0cy13aXRoIiwgIiRrZXkiLCAiMS91cGxvYWRzLzIwMjEwODIyL2Q3N2E3N2U0ODYyMDQwNDNiYmNhNjUxNGQ4MTBjN2EyLyJdLCBbImVxIiwgIiR4LWFtei1hbGdvcml0aG0iLCAiQVdTNC1ITUFDLVNIQTI1NiJdLCBbImVxIiwgIiR4LWFtei1jcmVkZW50aWFsIiwgImhlbGxvLzIwMjEwODIyL21ibG9ja3MvczMvYXdzNF9yZXF1ZXN0Il0sIFsiZXEiLCAiJHgtYW16LWRhdGUiLCAiMjAyMTA4MjJUMTUwNDMzWiJdXX0=',
+      'x-amz-signature':
+        '6e4846c39d555e8d2b0061496d7482c4cb281c31342d06ac43fdb7f1eff49e39',
+      key: '1/uploads/20210822/d77a77e486204043bbca6514d810c7a2/',
+    });
   },
-  'PUT /api/driver/mockuploadfile': (req: Request, res: Response) => {
+  'POST /api/driver/mockuploadfile': (req: Request, res: Response) => {
     setTimeout(() => {
       res.send('ok');
     }, 3000);
