@@ -50,17 +50,17 @@ const DiverModel: DiverModelType = {
     *goto({ payload }, { call, put, select }) {
       const { driver } = yield select((state: DiverModelState) => state);
       const documents = yield call(queryDocuments, { params: payload });
-      let selectedDir = driver.dirsPath[payload.dir];
+      let selectedDir = driver.dirsPath[payload.parent];
       if (selectedDir == undefined) {
         const breadcrumb =
-          payload.dir == ''
+          payload.parent == ''
             ? []
             : yield call(queryBreadcrumb, { params: payload });
         yield put({
           type: 'save',
           payload: {
             breadcrumb,
-            dir: payload.dir,
+            parent: payload.parent,
             documents: documents.map((v) => ({ ...v, key: v.id })),
           },
         });
@@ -76,7 +76,7 @@ const DiverModel: DiverModelType = {
         type: 'save',
         payload: {
           breadcrumb,
-          dir: payload.dir,
+          parent: payload.parent,
           documents: documents.map((v) => ({ ...v, key: v.id })),
         },
       });
@@ -120,28 +120,45 @@ const DiverModel: DiverModelType = {
       return res;
     },
     *copy({ payload }, { call, put, select }) {
-      const res = yield call(copyDocuments, { payload });
+      const targetChildren = yield call(copyDocuments, { payload });
       const { driver } = yield select((state: DiverModelState) => state);
-      const dirsPath = driver.dirsPath;
+      const dirsPath = Object.assign(
+        driver.dirsPath,
+        ...targetChildren.map((v) => ({
+          [v.id]: {
+            ...v,
+            key: v.id,
+            isLeaf: v.type == 'file',
+            children: [],
+            title: v.name,
+          },
+        })),
+      );
       const target = dirsPath[payload.target];
-      const copyDirs = Object.values(dirsPath)
-        .filter((v) => payload.documents.includes(v.key))
-        .map((v) => ({ ...v, key: v.key + '-copy' })); //Avoid identical key value errors in tree
-      if (target && copyDirs.length > 0) {
+      const refreshChildren = targetChildren.map((v) => ({
+        ...v,
+        key: v.id,
+        isLeaf: v.type == 'file',
+        children: [],
+        parent: payload.target,
+        title: v.name,
+      })); //Avoid identical key value errors in tree
+      if (target) {
         //Copy selected dirs to target dir
-        target.children = [...target.children, ...copyDirs];
+        target.children = refreshChildren;
         target.isLeaf = false;
         yield put({
           type: 'save',
           payload: {
             dirsPath,
+            dirs: Object.values(dirsPath).filter((v) => !v.parent),
           },
         });
       }
-      return res;
+      return targetChildren;
     },
     *delete({ payload }, { put, call, select }) {
-      const res = yield call(deleteDocuments, { payload });
+      const res = yield call(deleteDocuments, { payload: payload.documents });
       const { driver } = yield select((state: DiverModelState) => state);
       const state = {};
       const deleteDirs = driver.documents.filter(
@@ -157,7 +174,9 @@ const DiverModel: DiverModelType = {
             (item) => item.key != v.key,
           );
         });
-        state.dirs = Object.values(driver.dirsPath).filter((v) => !v.parent);
+        state.dirs = Object.values(driver.dirsPath).filter(
+          (v) => !v.parent && !payload.documents.includes(v.key),
+        );
       }
       yield put({
         type: 'save',
@@ -237,13 +256,13 @@ const DiverModel: DiverModelType = {
     },
     *fetchDirs({ payload }, { call, put, select }) {
       const { driver } = yield select((state: DiverModelState) => state);
-      const parentDir = driver.dirsPath[payload.dir];
+      const parentDir = driver.dirsPath[payload.parent];
       if (parentDir && parentDir.hasLoad) {
         return [];
       }
-      const res = payload.dir
+      const res = payload.parent
         ? yield call(queryDirs, { params: payload })
-        : [{ id: 'root', title: 'My Docs', type: 'dir', parent: '' }];
+        : [{ id: 'root', name: 'My Docs', type: 'dir', parent: '' }];
       const dirsPath = Object.assign(
         driver.dirsPath,
         ...res.map((v) => ({
@@ -252,6 +271,7 @@ const DiverModel: DiverModelType = {
             key: v.id,
             isLeaf: v.type == 'file',
             children: [],
+            title: v.name,
           },
         })),
       );
@@ -261,6 +281,14 @@ const DiverModel: DiverModelType = {
           .forEach((v) => {
             if (v.parent && dirsPath[v.parent]) {
               dirsPath[v.parent].children.push(v);
+              dirsPath[v.parent].children = [
+                ...new Map(
+                  dirsPath[v.parent].children.map((item) => [
+                    item['key'],
+                    item,
+                  ]),
+                ).values(),
+              ];
               dirsPath[v.parent].hasLoad = true;
             }
             dirsPath[v.key].checked = true;

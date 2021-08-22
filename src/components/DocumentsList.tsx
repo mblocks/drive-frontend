@@ -76,7 +76,7 @@ const DocumentsList = ({ documents, dirs }) => {
         <DocumentClick
           onDoubleClick={() => {
             if (item.type == 'dir') {
-              dispatch({ type: 'driver/goto', payload: { dir: item.id } });
+              dispatch({ type: 'driver/goto', payload: { parent: item.id } });
             }
             //console.log(item);
           }}
@@ -183,7 +183,7 @@ const DocumentsList = ({ documents, dirs }) => {
           loadData={async (node) => {
             await dispatch({
               type: 'driver/fetchDirs',
-              payload: { dir: node.id },
+              payload: { parent: node.id },
             });
           }}
         />

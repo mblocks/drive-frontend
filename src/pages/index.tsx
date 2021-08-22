@@ -28,7 +28,7 @@ const IndexPage = ({ driver }) => {
   const location = useLocation();
   const intl = useIntl();
   const [query, setQuery] = useState(location.query);
-  const [selectedKeys, setSelectedKeys] = useState([query.dir]);
+  const [selectedKeys, setSelectedKeys] = useState([query.parent]);
   const [showType, setShowType] = useState('list');
 
   driver.dirs.length == 1 &&
@@ -44,15 +44,15 @@ const IndexPage = ({ driver }) => {
   }, []);
   useEffect(() => history.push({ query }), [query]);
   useEffect(() => {
-    setQuery({ ...query, dir: driver.dir });
-    !selectedKeys.includes(Number(driver.dir)) && setSelectedKeys([]);
+    setQuery({ ...query, parent: driver.parent });
+    !selectedKeys.includes(Number(driver.parent)) && setSelectedKeys([]);
     window.scroll(0, 0);
-  }, [driver.dir]);
+  }, [driver.parent]);
   useEffect(() => {
     selectedKeys.length > 0 &&
       dispatch({
         type: 'driver/goto',
-        payload: { dir: selectedKeys.join('') },
+        payload: { parent: selectedKeys.join('') },
       });
   }, [selectedKeys]);
 
@@ -60,9 +60,7 @@ const IndexPage = ({ driver }) => {
     return (
       <Breadcrumb>
         <Breadcrumb.Item
-          onClick={() =>
-            dispatch({ type: 'driver/goto', payload: { dir: '' } })
-          }
+          onClick={() => dispatch({ type: 'driver/goto', payload: {} })}
         >
           <Button type="text">
             {intl.formatMessage({ id: 'DRIVE_ROOT' })}
@@ -74,7 +72,7 @@ const IndexPage = ({ driver }) => {
             onClick={() =>
               dispatch({
                 type: 'driver/goto',
-                payload: { dir: v.id },
+                payload: { parent: v.id },
               })
             }
           >
@@ -101,7 +99,11 @@ const IndexPage = ({ driver }) => {
                   onClick={() => {
                     dispatch({
                       type: 'driver/create',
-                      payload: { name: 'New Dir', type: 'dir', dir: query.dir },
+                      payload: {
+                        name: 'New Dir',
+                        type: 'dir',
+                        parent: query.parent,
+                      },
                     });
                   }}
                 >
@@ -140,7 +142,7 @@ const IndexPage = ({ driver }) => {
               loadData={(node) =>
                 dispatch({
                   type: 'driver/fetchDirs',
-                  payload: { dir: node.id },
+                  payload: { parent: node.id },
                 })
               }
             />
