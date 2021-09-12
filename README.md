@@ -35,7 +35,22 @@ Create `.umirc.local.ts` as below
 import { defineConfig } from 'umi';
 
 export default defineConfig({
-  layout:{},
+  layout: {},
+  proxy: {
+    '/api/driver/': {
+      'target': 'http://127.0.0.1:8000',
+      bypass: function (req, res, proxyOptions) {
+        req.headers = { ...req.headers, 'x-consumer-id': '1', 'x-consumer-third': 'mblocks', 'x-consumer-third-user-id': '1' };
+      },
+      'changeOrigin': true,
+      'pathRewrite': { '^/api/driver/': '/' },
+    },
+    '/api/services/minio/': {
+      'target': 'http://minio.local.com',
+      'changeOrigin': true,
+      'pathRewrite': { '^/api/services/minio/': '/' },
+    },
+  },
 });
 
 

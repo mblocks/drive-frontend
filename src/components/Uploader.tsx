@@ -10,7 +10,7 @@ export interface UploadFile {
   type: string;
 }
 
-const Uploader = ({ children, ...rest }) => {
+const Uploader = ({ children, parent, ...rest }) => {
   const dispatch = useDispatch();
   const [hit, setHit] = useState(1); //count hit upload button
   const [queues, setQueues] = useState({});
@@ -22,7 +22,7 @@ const Uploader = ({ children, ...rest }) => {
       if (!queues[hit]) {
         setQueues(Object.assign(queues, { [hit]: {} })); //status of click upload button everytime
         setHit(hit + fileList.length);
-        const presignedUrl = await getPresignedUrl({ type: 'upload' });
+        const presignedUrl = await getPresignedUrl({ parent });
         setQueues(
           Object.assign(queues, {
             [hit]: {
@@ -48,7 +48,7 @@ const Uploader = ({ children, ...rest }) => {
         formData.append(k, k == 'key' ? v + file.name : v);
       });
       formData.append('file', file);
-      fetch('http://minio.local.com/hello', { method: 'post', body: formData })
+      fetch('/api/services/minio/drive', { method: 'post', body: formData })
         .then((response) => onSuccess(response, file))
         .catch((e) => {
           console.error(e);

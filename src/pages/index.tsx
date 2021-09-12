@@ -110,12 +110,12 @@ const IndexPage = ({ driver }) => {
                   {intl.formatMessage({ id: 'DRIVE_CREATE_DIR' })}
                 </Menu.Item>
                 <Menu.Item key="upload-file" icon={<UploadOutlined />}>
-                  <Uploader>
+                  <Uploader parent={query.parent}>
                     {intl.formatMessage({ id: 'DRIVE_UPLOAD_FILE' })}
                   </Uploader>
                 </Menu.Item>
                 <Menu.Item key="upload-dir" icon={<UploadOutlined />}>
-                  <Uploader directory>
+                  <Uploader directory parent={query.parent}>
                     {intl.formatMessage({ id: 'DRIVE_UPLOAD_DIR' })}
                   </Uploader>
                 </Menu.Item>
