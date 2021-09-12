@@ -136,7 +136,7 @@ const DocumentsExpand = ({ documents, dirs }) => {
           loadData={async (node) => {
             await dispatch({
               type: 'driver/fetchDirs',
-              payload: { dir: node.id },
+              payload: { parent: node.id },
             });
           }}
         />
@@ -177,7 +177,7 @@ const DocumentsExpand = ({ documents, dirs }) => {
                   //e.ctrlKey && setSelectedDocuments(selectedDocuments.includes(v.key) ? [...selectedDocuments.filter(item => item != v.key)] : [...selectedDocuments, v.key]);
                 }}
                 onDoubleClick={() => {
-                  dispatch({ type: 'driver/goto', payload: { dir: v.id } });
+                  dispatch({ type: 'driver/goto', payload: { parent: v.id } });
                 }}
                 title={v.name}
               >
