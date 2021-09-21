@@ -18,7 +18,7 @@ const InfiniteScroll: React.FC<InfiniteScroll> = ({
   useEffect(() => {
     setPage(1);
     setHasMore(true);
-  }, [query.dir]);
+  }, [query.parent]);
   useEffect(() => {
     page > 1 && loadMore(page).then((res) => setHasMore(res.length > 0));
   }, [manual]);
