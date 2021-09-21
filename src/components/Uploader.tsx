@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'umi';
-import { Upload, message, notification } from 'antd';
+import { Upload, message, notification, Avatar, Button } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 import { getPresignedUrl } from '@/services/driver';
 
 export interface UploadFile {
@@ -8,6 +9,16 @@ export interface UploadFile {
   name: string;
   status: string;
   type: string;
+  thumbnail: string;
+}
+
+function getBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
 }
 
 const Uploader = ({ children, parent, ...rest }) => {
@@ -54,33 +65,62 @@ const Uploader = ({ children, parent, ...rest }) => {
           console.error(e);
         });
     },
-    onChange({ file }: { file: UploadFile }) {
+    async onChange({ file }: { file: UploadFile }) {
       const notificationKey = `upload-process-${file.queue}`;
       const queue = queues[file.queue];
       setQueues({ ...queues, [file.queue]: { ...queue, current: file.name } });
       if (file.status == 'done') {
-        queue.done.push(file.uid);
+        file.thumbnail = await getBase64(file.originFileObj);
+        queue.done.push(file);
+        /*
+        cancel insert file to documents list after upload
         dispatch({
           type: 'driver/create',
           payload: {
             id: new Date().getTime(),
             name: file.name,
             type: file.type,
+            thumbnail: file.thumbnail
           },
         });
+        */
         if (queue.done.length == queue.total) {
           notification.success({
             key: notificationKey,
-            message: 'Done',
+            message: (
+              <>
+                Done{' '}
+                <Button
+                  type="link"
+                  onClick={() =>
+                    dispatch({ type: 'driver/goto', payload: { parent } })
+                  }
+                >
+                  View
+                </Button>
+              </>
+            ),
+            description: (
+              <Avatar.Group
+                maxCount={10}
+                maxStyle={{ color: '#f56a00', backgroundColor: '#fde3cf' }}
+              >
+                {queue.done.map((v) => (
+                  <Avatar shape="square" key={v.uid} src={v.thumbnail} />
+                ))}
+              </Avatar.Group>
+            ),
             placement: 'bottomRight',
+            duration: null,
           });
           delete queues[file.queue];
           setQueues(queues);
         } else {
           notification.info({
             key: notificationKey,
+            icon: <LoadingOutlined />,
             message: `Uploading(${queue.done.length}/${queue.total})`,
-            description: `${queue.current} is uploading`,
+            description: <Avatar shape="square" src={file.thumbnail} />,
             placement: 'bottomRight',
             duration: null,
           });

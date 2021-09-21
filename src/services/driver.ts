@@ -70,5 +70,5 @@ export async function updateDocuments({ payload }): Promise<any> {
 }
 
 export async function getPresignedUrl({ parent }): Promise<any> {
-  return request(`/api/driver/presigned`, { params: { parent } });
+  return request(`/api/driver/presigned`, { params: parent ? { parent } : {} });
 }

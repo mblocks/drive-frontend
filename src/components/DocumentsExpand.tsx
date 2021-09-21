@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useIntl } from 'umi';
-import { Dropdown, Menu, Input, Modal, Tree } from 'antd';
+import { Dropdown, Menu, Input, Modal, Tree, Image } from 'antd';
 import {
   DeleteOutlined,
   DragOutlined,
@@ -181,7 +181,17 @@ const DocumentsExpand = ({ documents, dirs }) => {
                 }}
                 title={v.name}
               >
-                <Icon type={v.type} style={{ fontSize: 60 }} />
+                {v.thumbnail ? (
+                  <Image
+                    src={v.thumbnail}
+                    preview={{ mask: false, src: v.preview }}
+                  />
+                ) : (
+                  <Icon
+                    type={v.type}
+                    style={{ fontSize: 120, margin: 'auto' }}
+                  />
+                )}
                 <div className={styles['document-title']}>
                   {editableKeys.includes(v.key) ? (
                     <Input.TextArea
