@@ -30,7 +30,7 @@ const DocumentsExpand = ({ documents, dirs }) => {
       .filter((v) => !v.id && !selectedDocuments.includes(v.key))
       .forEach((v) => {
         dispatch({
-          type: 'driver/update',
+          type: 'drive/update',
           payload: v,
         });
       });
@@ -59,7 +59,7 @@ const DocumentsExpand = ({ documents, dirs }) => {
       icon: <ExclamationCircleOutlined />,
       onOk() {
         dispatch({
-          type: 'driver/delete',
+          type: 'drive/delete',
           payload: { documents: selectedDocuments },
         });
       },
@@ -92,7 +92,7 @@ const DocumentsExpand = ({ documents, dirs }) => {
       )}
       <Menu.Item key="download" icon={<DownloadOutlined />}>
         <a
-          href={`/api/driver/documents/download?id=${
+          href={`/api/drive/documents/download?id=${
             selectedDocuments.length > 1 ? selectedDocuments : item.id
           }`}
         >
@@ -119,7 +119,7 @@ const DocumentsExpand = ({ documents, dirs }) => {
         onCancel={() => setModalAction({})}
         onOk={async () => {
           await dispatch({
-            type: `driver/${modalAction.action}`,
+            type: `drive/${modalAction.action}`,
             payload: modalAction,
           });
           setModalAction({});
@@ -135,7 +135,7 @@ const DocumentsExpand = ({ documents, dirs }) => {
           }}
           loadData={async (node) => {
             await dispatch({
-              type: 'driver/fetchDirs',
+              type: 'drive/fetchDirs',
               payload: { parent: node.id },
             });
           }}
@@ -177,7 +177,7 @@ const DocumentsExpand = ({ documents, dirs }) => {
                   //e.ctrlKey && setSelectedDocuments(selectedDocuments.includes(v.key) ? [...selectedDocuments.filter(item => item != v.key)] : [...selectedDocuments, v.key]);
                 }}
                 onDoubleClick={() => {
-                  dispatch({ type: 'driver/goto', payload: { parent: v.id } });
+                  dispatch({ type: 'drive/goto', payload: { parent: v.id } });
                 }}
                 title={v.name}
               >
@@ -197,7 +197,7 @@ const DocumentsExpand = ({ documents, dirs }) => {
                     <Input.TextArea
                       onBlur={(e) => {
                         dispatch({
-                          type: 'driver/update',
+                          type: 'drive/update',
                           payload: {
                             ...v,
                             name: e.target.value,

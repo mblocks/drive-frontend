@@ -23,7 +23,7 @@ import DocumentsExpand from '@/components/DocumentsExpand';
 import DocumentsList from '@/components/DocumentsList';
 import Uploader from '@/components/Uploader';
 
-const IndexPage = ({ driver }) => {
+const IndexPage = ({ drive }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const intl = useIntl();
@@ -31,8 +31,8 @@ const IndexPage = ({ driver }) => {
   const [selectedKeys, setSelectedKeys] = useState([query.parent]);
   const [showType, setShowType] = useState('list');
 
-  driver.dirs.length == 1 &&
-    driver.dirs.forEach((v) => {
+  drive.dirs.length == 1 &&
+    drive.dirs.forEach((v) => {
       if (v.id == 'root') {
         v.title = intl.formatMessage({ id: 'DRIVE_ROOT' });
       }
@@ -40,18 +40,18 @@ const IndexPage = ({ driver }) => {
 
   useEffect(() => {
     // Loading directories requires root data first, so exclude query
-    dispatch({ type: 'driver/fetchDirs', payload: {} });
+    dispatch({ type: 'drive/fetchDirs', payload: {} });
   }, []);
   useEffect(() => history.push({ query }), [query]);
   useEffect(() => {
-    setQuery({ ...query, parent: driver.parent });
-    !selectedKeys.includes(Number(driver.parent)) && setSelectedKeys([]);
+    setQuery({ ...query, parent: drive.parent });
+    !selectedKeys.includes(Number(drive.parent)) && setSelectedKeys([]);
     window.scroll(0, 0);
-  }, [driver.parent]);
+  }, [drive.parent]);
   useEffect(() => {
     selectedKeys.length > 0 &&
       dispatch({
-        type: 'driver/goto',
+        type: 'drive/goto',
         payload: { parent: selectedKeys.join('') },
       });
   }, [selectedKeys]);
@@ -60,18 +60,18 @@ const IndexPage = ({ driver }) => {
     return (
       <Breadcrumb>
         <Breadcrumb.Item
-          onClick={() => dispatch({ type: 'driver/goto', payload: {} })}
+          onClick={() => dispatch({ type: 'drive/goto', payload: {} })}
         >
           <Button type="text">
             {intl.formatMessage({ id: 'DRIVE_ROOT' })}
           </Button>
         </Breadcrumb.Item>
-        {driver.breadcrumb.map((v) => (
+        {drive.breadcrumb.map((v) => (
           <Breadcrumb.Item
             key={v.id}
             onClick={() =>
               dispatch({
-                type: 'driver/goto',
+                type: 'drive/goto',
                 payload: { parent: v.id },
               })
             }
@@ -98,7 +98,7 @@ const IndexPage = ({ driver }) => {
                   key="create-dir"
                   onClick={() => {
                     dispatch({
-                      type: 'driver/create',
+                      type: 'drive/create',
                       payload: {
                         name: 'New Dir',
                         type: 'dir',
@@ -134,14 +134,14 @@ const IndexPage = ({ driver }) => {
           </Dropdown>
           <Card size="small">
             <Tree
-              treeData={driver.dirs}
+              treeData={drive.dirs}
               selectedKeys={selectedKeys}
               onSelect={(key) => {
                 key.length != 0 && setSelectedKeys(key);
               }}
               loadData={(node) =>
                 dispatch({
-                  type: 'driver/fetchDirs',
+                  type: 'drive/fetchDirs',
                   payload: { parent: node.id },
                 })
               }
@@ -179,21 +179,18 @@ const IndexPage = ({ driver }) => {
               query={query}
               loadMore={(page) => {
                 return dispatch({
-                  type: 'driver/fetchDocuments',
+                  type: 'drive/fetchDocuments',
                   payload: { params: { ...query, page } },
                 });
               }}
             >
               <div hidden={showType != 'list'}>
-                <DocumentsList
-                  documents={driver.documents}
-                  dirs={driver.dirs}
-                />
+                <DocumentsList documents={drive.documents} dirs={drive.dirs} />
               </div>
               <div hidden={showType != 'expand'}>
                 <DocumentsExpand
-                  documents={driver.documents}
-                  dirs={driver.dirs}
+                  documents={drive.documents}
+                  dirs={drive.dirs}
                 />
               </div>
             </InfiniteScroll>
@@ -204,4 +201,4 @@ const IndexPage = ({ driver }) => {
   );
 };
 
-export default connect(({ driver }) => ({ driver }))(IndexPage);
+export default connect(({ drive }) => ({ drive }))(IndexPage);

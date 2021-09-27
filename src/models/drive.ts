@@ -7,9 +7,9 @@ import {
   deleteDocuments,
   updateDocuments,
   queryDocuments,
-} from '@/services/driver';
+} from '@/services/drive';
 
-export interface DiverModelState {
+export interface DriveModelState {
   dirs: Object[];
   dirsPath: Object;
   breadcrumb: Object[];
@@ -17,8 +17,8 @@ export interface DiverModelState {
   documents: Object[];
 }
 
-export interface DiverModelType {
-  state: DiverModelState;
+export interface DriveModelType {
+  state: DriveModelState;
   effects: {
     goto: Effect;
     move: Effect;
@@ -32,13 +32,13 @@ export interface DiverModelType {
   reducers: {
     create: Reducer;
     cancel: Reducer;
-    save: Reducer<DiverModelState>;
+    save: Reducer<DriveModelState>;
     // 启用 immer 之后
-    // save: ImmerReducer<DiverModelState>;
+    // save: ImmerReducer<DriveModelState>;
   };
 }
 
-const DiverModel: DiverModelType = {
+const DriveModel: DriveModelType = {
   state: {
     dirs: [],
     dirsPath: {}, //store all path as key => value
@@ -48,9 +48,9 @@ const DiverModel: DiverModelType = {
   },
   effects: {
     *goto({ payload }, { call, put, select }) {
-      const { driver } = yield select((state: DiverModelState) => state);
+      const { drive } = yield select((state: DriveModelState) => state);
       const documents = yield call(queryDocuments, { params: payload });
-      let selectedDir = driver.dirsPath[payload.parent];
+      let selectedDir = drive.dirsPath[payload.parent];
       if (selectedDir == undefined) {
         const breadcrumb =
           payload.parent == ''
@@ -69,7 +69,7 @@ const DiverModel: DiverModelType = {
       const breadcrumb = [];
       while (selectedDir.parent != '') {
         breadcrumb.push(selectedDir);
-        selectedDir = driver.dirsPath[selectedDir.parent];
+        selectedDir = drive.dirsPath[selectedDir.parent];
       }
       breadcrumb.reverse();
       yield put({
@@ -83,8 +83,8 @@ const DiverModel: DiverModelType = {
     },
     *move({ payload }, { put, call, select }) {
       const res = yield call(moveDocuments, { payload });
-      const { driver } = yield select((state: DiverModelState) => state);
-      const dirsPath = driver.dirsPath;
+      const { drive } = yield select((state: DriveModelState) => state);
+      const dirsPath = drive.dirsPath;
       const target = dirsPath[payload.target];
       const moveDirs = Object.values(dirsPath).filter((v) =>
         payload.documents.includes(v.key),
@@ -111,7 +111,7 @@ const DiverModel: DiverModelType = {
         payload: {
           ...state,
           documents: [
-            ...driver.documents.filter(
+            ...drive.documents.filter(
               (v) => !payload.documents.includes(v.key),
             ),
           ],
@@ -121,9 +121,9 @@ const DiverModel: DiverModelType = {
     },
     *copy({ payload }, { call, put, select }) {
       const targetChildren = yield call(copyDocuments, { payload });
-      const { driver } = yield select((state: DiverModelState) => state);
+      const { drive } = yield select((state: DriveModelState) => state);
       const dirsPath = Object.assign(
-        driver.dirsPath,
+        drive.dirsPath,
         ...targetChildren.map((v) => ({
           [v.id]: {
             ...v,
@@ -159,22 +159,22 @@ const DiverModel: DiverModelType = {
     },
     *delete({ payload }, { put, call, select }) {
       const res = yield call(deleteDocuments, { payload: payload.documents });
-      const { driver } = yield select((state: DiverModelState) => state);
+      const { drive } = yield select((state: DriveModelState) => state);
       const state = {};
-      const deleteDirs = driver.documents.filter(
+      const deleteDirs = drive.documents.filter(
         (v) =>
           v.type == 'dir' &&
           payload.documents.includes(v.key) &&
-          driver.dirsPath[v.parent],
+          drive.dirsPath[v.parent],
       );
       if (deleteDirs.length > 0) {
         deleteDirs.forEach((v) => {
-          const vParent = driver.dirsPath[v.parent];
+          const vParent = drive.dirsPath[v.parent];
           vParent.children = vParent.children.filter(
             (item) => item.key != v.key,
           );
         });
-        state.dirs = Object.values(driver.dirsPath).filter(
+        state.dirs = Object.values(drive.dirsPath).filter(
           (v) => !v.parent && !payload.documents.includes(v.key),
         );
       }
@@ -183,7 +183,7 @@ const DiverModel: DiverModelType = {
         payload: {
           ...state,
           documents: [
-            ...driver.documents.filter(
+            ...drive.documents.filter(
               (v) => !payload.documents.includes(v.key),
             ),
           ],
@@ -193,18 +193,18 @@ const DiverModel: DiverModelType = {
     },
     *update({ payload }, { call, put, select }) {
       const res = yield call(updateDocuments, { payload });
-      const { driver } = yield select((state: DiverModelState) => state);
+      const { drive } = yield select((state: DriveModelState) => state);
       const state = {};
       if (res.id) {
         res.key = res.id;
-        state.documents = driver.documents.map((v) =>
+        state.documents = drive.documents.map((v) =>
           v.key == (payload.id ? res.key : payload.key)
             ? { ...payload, ...res }
             : v,
         );
         if (res.type == 'dir') {
           //sync dirs data
-          const dirsPath = driver.dirsPath;
+          const dirsPath = drive.dirsPath;
           if (dirsPath[res.parent]) {
             if (
               dirsPath[res.parent].children.filter((v) => v.key == res.key)
@@ -237,12 +237,12 @@ const DiverModel: DiverModelType = {
       return res;
     },
     *fetchDocuments({ payload }, { call, put, select }) {
-      const { driver } = yield select((state: DiverModelState) => state);
+      const { drive } = yield select((state: DriveModelState) => state);
       const documents = yield call(queryDocuments, payload);
       yield put({
         type: 'save',
         payload: {
-          documents: driver.documents.concat(
+          documents: drive.documents.concat(
             documents.map((v) => ({ ...v, key: v.id })),
           ),
         },
@@ -255,8 +255,8 @@ const DiverModel: DiverModelType = {
       return breadcrumb;
     },
     *fetchDirs({ payload }, { call, put, select }) {
-      const { driver } = yield select((state: DiverModelState) => state);
-      const parentDir = driver.dirsPath[payload.parent];
+      const { drive } = yield select((state: DriveModelState) => state);
+      const parentDir = drive.dirsPath[payload.parent];
       if (parentDir && parentDir.hasLoad) {
         return [];
       }
@@ -264,7 +264,7 @@ const DiverModel: DiverModelType = {
         ? yield call(queryDirs, { params: payload })
         : [{ id: 'root', name: 'My Docs', type: 'dir', parent: '' }];
       const dirsPath = Object.assign(
-        driver.dirsPath,
+        drive.dirsPath,
         ...res.map((v) => ({
           [v.id]: {
             ...v,
@@ -325,4 +325,4 @@ const DiverModel: DiverModelType = {
   },
 };
 
-export default DiverModel;
+export default DriveModel;

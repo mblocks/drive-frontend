@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDispatch } from 'umi';
 import { Upload, message, notification, Avatar, Button } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { getPresignedUrl } from '@/services/driver';
+import { getPresignedUrl } from '@/services/drive';
 
 export interface UploadFile {
   uid: string;
@@ -75,7 +75,7 @@ const Uploader = ({ children, parent, ...rest }) => {
         /*
         cancel insert file to documents list after upload
         dispatch({
-          type: 'driver/create',
+          type: 'drive/create',
           payload: {
             id: new Date().getTime(),
             name: file.name,
@@ -93,7 +93,7 @@ const Uploader = ({ children, parent, ...rest }) => {
                 <Button
                   type="link"
                   onClick={() =>
-                    dispatch({ type: 'driver/goto', payload: { parent } })
+                    dispatch({ type: 'drive/goto', payload: { parent } })
                   }
                 >
                   View

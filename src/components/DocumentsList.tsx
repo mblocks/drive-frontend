@@ -38,7 +38,7 @@ const DocumentsList = ({ documents, dirs }) => {
       content: selectedDocuments.map((v) => v.name).join(','),
       icon: <ExclamationCircleOutlined />,
       onOk() {
-        dispatch({ type: 'driver/delete', payload: { documents: keys } }).then(
+        dispatch({ type: 'drive/delete', payload: { documents: keys } }).then(
           () => {
             setSelectedRowKeys(
               rowKey ? [...selectedRowKeys.filter((v) => v != rowKey)] : [],
@@ -76,7 +76,7 @@ const DocumentsList = ({ documents, dirs }) => {
         <DocumentClick
           onDoubleClick={() => {
             if (item.type == 'dir') {
-              dispatch({ type: 'driver/goto', payload: { parent: item.id } });
+              dispatch({ type: 'drive/goto', payload: { parent: item.id } });
             }
             //console.log(item);
           }}
@@ -124,7 +124,7 @@ const DocumentsList = ({ documents, dirs }) => {
         {intl.formatMessage({ id: 'DRIVE_ACTION_RENAME' })}
       </Menu.Item>
       <Menu.Item key="download" icon={<DownloadOutlined />}>
-        <a href={`/api/driver/documents/download?id=${item.id}`}>
+        <a href={`/api/drive/documents/download?id=${item.id}`}>
           {intl.formatMessage({ id: 'DRIVE_ACTION_DOWNLOAD' })}
         </a>
       </Menu.Item>
@@ -162,7 +162,7 @@ const DocumentsList = ({ documents, dirs }) => {
         onCancel={() => setModalAction({})}
         onOk={async () => {
           await dispatch({
-            type: `driver/${modalAction.action}`,
+            type: `drive/${modalAction.action}`,
             payload: modalAction,
           });
           setModalAction({});
@@ -182,7 +182,7 @@ const DocumentsList = ({ documents, dirs }) => {
           }}
           loadData={async (node) => {
             await dispatch({
-              type: 'driver/fetchDirs',
+              type: 'drive/fetchDirs',
               payload: { parent: node.id },
             });
           }}
@@ -217,7 +217,7 @@ const DocumentsList = ({ documents, dirs }) => {
                   type="primary"
                   onClick={async () => {
                     const res = await dispatch({
-                      type: 'driver/update',
+                      type: 'drive/update',
                       payload: {
                         ...row,
                         ...config.form.getFieldValue([row.key]),
@@ -235,7 +235,7 @@ const DocumentsList = ({ documents, dirs }) => {
                     if (row.id) {
                       config.cancelEditable(config.recordKey);
                     } else {
-                      dispatch({ type: 'driver/cancel', payload: row });
+                      dispatch({ type: 'drive/cancel', payload: row });
                     }
                   }}
                 >
@@ -255,7 +255,7 @@ const DocumentsList = ({ documents, dirs }) => {
           return (
             <Space size={16}>
               <Button
-                href={`/api/driver/documents/download?id=${selectedRowKeys}`}
+                href={`/api/drive/documents/download?id=${selectedRowKeys}`}
                 icon={<DownloadOutlined />}
               >
                 {intl.formatMessage({ id: 'DRIVE_ACTION_DOWNLOAD' })}
