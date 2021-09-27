@@ -2,7 +2,7 @@ import mockjs from 'mockjs';
 import { Request, Response } from 'express';
 
 export default {
-  'GET /api/driver/dirs': (req: Request, res: Response) => {
+  'GET /api/drive/dirs': (req: Request, res: Response) => {
     //res.status(401);
     const data = mockjs.mock({
       'dirs|10': [
@@ -16,10 +16,10 @@ export default {
     });
     res.send(data.dirs);
   },
-  'POST /api/driver/dirs': (req: Request, res: Response) => {
+  'POST /api/drive/dirs': (req: Request, res: Response) => {
     res.send({ ...req.body, id: new Date().getTime() + '' });
   },
-  'GET /api/driver/documents': (req: Request, res: Response) => {
+  'GET /api/drive/documents': (req: Request, res: Response) => {
     if (req.query.page > 5) {
       res.send([]);
       return;
@@ -37,7 +37,7 @@ export default {
     });
     res.send(data.documents);
   },
-  'GET /api/driver/breadcrumb': (req: Request, res: Response) => {
+  'GET /api/drive/breadcrumb': (req: Request, res: Response) => {
     if (!req.query.parent) {
       res.send([]);
     }
@@ -46,10 +46,10 @@ export default {
       { id: 'manual-3', name: 'World' + req.query.parent },
     ]);
   },
-  'POST /api/driver/documents/move': (req: Request, res: Response) => {
+  'POST /api/drive/documents/move': (req: Request, res: Response) => {
     res.send({ ...req.body, id: new Date().getTime() + '' });
   },
-  'POST /api/driver/documents/copy': (req: Request, res: Response) => {
+  'POST /api/drive/documents/copy': (req: Request, res: Response) => {
     const parent = req.body.target || 'root';
     const data = mockjs.mock({
       'dirs|10': [
@@ -63,17 +63,17 @@ export default {
     });
     res.send(data.dirs);
   },
-  'POST /api/driver/documents/delete': (req: Request, res: Response) => {
+  'POST /api/drive/documents/delete': (req: Request, res: Response) => {
     res.send({ ...req.body, id: new Date().getTime() + '' });
   },
-  'POST /api/driver/documents/update': (req: Request, res: Response) => {
+  'POST /api/drive/documents/update': (req: Request, res: Response) => {
     req.body.parent = req.body.dir ? req.body.dir : 'root';
     if (!req.body.id) {
       req.body.id = new Date().getTime() + '';
     }
     res.send({ ...req.body });
   },
-  'GET /api/driver/documents/download': (req: Request, res: Response) => {
+  'GET /api/drive/documents/download': (req: Request, res: Response) => {
     res.set({
       'Content-Disposition': `attachment; filename="${
         req.query.id || 'mockdownload.txt'
@@ -81,7 +81,7 @@ export default {
     });
     res.send('some words');
   },
-  'GET /api/driver/presigned': async (req: Request, res: Response) => {
+  'GET /api/drive/presigned': async (req: Request, res: Response) => {
     res.send({
       'x-amz-algorithm': 'AWS4-HMAC-SHA256',
       'x-amz-credential': 'hello/20210822/mblocks/s3/aws4_request',
@@ -93,7 +93,7 @@ export default {
       key: '1/uploads/20210822/d77a77e486204043bbca6514d810c7a2/',
     });
   },
-  'POST /api/driver/mockuploadfile': (req: Request, res: Response) => {
+  'POST /api/drive/mockuploadfile': (req: Request, res: Response) => {
     setTimeout(() => {
       res.send('ok');
     }, 3000);
