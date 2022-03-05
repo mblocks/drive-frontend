@@ -1,6 +1,6 @@
 import { createFromIconfontCN } from '@ant-design/icons';
 const MyIcon = createFromIconfontCN({
-  scriptUrl: '/assets/icon/font_2691390_fnxb7b483y.js', // 在 iconfont.cn 上生成
+  scriptUrl: '/load/drive/assets/icon/font_2691390_fnxb7b483y.js', // 在 iconfont.cn 上生成
 });
 const types = {
   dir: 'icon-dir',
